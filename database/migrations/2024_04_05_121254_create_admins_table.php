@@ -15,7 +15,8 @@ return new class extends Migration
             $table->id();
             $table->string('username');
             $table->string('email')->unique();
-            $table->string('profile_url')->default('blank.profile.picture.png');
+            $table->string('profile_url')->nullable();
+            $table->string('profile_cover_url')->nullable();
             $table->boolean('is_active')->default(0);
             $table->timestamp('email_verified_at')->nullable();
             $table->boolean('is_email_verified')->default(0);
