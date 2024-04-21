@@ -3,11 +3,11 @@
 namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\ForgotPasswordRequest;
-use App\Http\Requests\ResetPasswordRequest;
-use App\Http\Requests\UserLoginRequest;
-use App\Http\Requests\UserRegistrationRequest;
-use App\Http\Requests\UserVerificationRequest;
+use App\Http\Requests\Auth\ForgotPasswordRequest;
+use App\Http\Requests\Auth\ResetPasswordRequest;
+use App\Http\Requests\Auth\UserLoginRequest;
+use App\Http\Requests\Auth\UserRegistrationRequest;
+use App\Http\Requests\Auth\UserVerificationRequest;
 use App\Services\Auth\AuthUserService;
 use Illuminate\Http\JsonResponse;
 

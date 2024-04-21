@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Http\Requests;
+namespace App\Http\Requests\Posts;
 
 use App\Utils\Helpers\ResponseHelpers;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
-class UserVerificationRequest extends FormRequest
+class CreatePostRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -27,7 +27,9 @@ class UserVerificationRequest extends FormRequest
     public function rules()
     {
         return [
-            'token' => 'required|min:4',
+            'title' => 'required|string|min:5|unique:posts',
+            'forum_slug' => 'required',
+            'description'=>'required|string '
         ];
     }
 

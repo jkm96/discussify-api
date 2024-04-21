@@ -3,11 +3,9 @@
 namespace App\Services\Auth;
 
 use App\Jobs\DispatchEmailNotificationsJob;
-use App\Models\Permission;
 use App\Models\User;
 use App\Models\UserVerification;
 use App\Utils\Enums\EmailTypes;
-use App\Utils\Enums\PetJournalPermission;
 use App\Utils\Helpers\AuthHelpers;
 use App\Utils\Helpers\ResponseHelpers;
 use Carbon\Carbon;
@@ -58,7 +56,7 @@ class AuthUserService
                 'verificationUrl' => trim($verificationUrl),
             ];
 
-//            DispatchEmailNotificationsJob::dispatch($details);
+            DispatchEmailNotificationsJob::dispatch($details);
 
             $tokenResource = AuthHelpers::getUserTokenResource($user, 0);
 

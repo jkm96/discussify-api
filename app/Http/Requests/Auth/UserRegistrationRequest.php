@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Http\Requests;
+namespace App\Http\Requests\Auth;
 
 use App\Utils\Helpers\ResponseHelpers;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
-class AdminRegisterRequest extends FormRequest
+class UserRegistrationRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -27,16 +27,12 @@ class AdminRegisterRequest extends FormRequest
     public function rules()
     {
         return [
-            'username' => 'required|string|min:5|unique:admins',
-            'email' => 'required|string|unique:admins',
+            'username' => 'required|string|min:5|unique:users',
+            'email' => 'required|string|unique:users',
             'password' => 'required',
         ];
     }
 
-    /**
-     * @param Validator $validator
-     * @return mixed
-     */
     public function failedValidation(Validator $validator)
     {
         $errorMessages = implode('. ', $validator->errors()->all());

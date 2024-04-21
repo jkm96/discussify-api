@@ -7,7 +7,7 @@ use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
-class UserRegistrationRequest extends FormRequest
+class CreateForumRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -27,12 +27,16 @@ class UserRegistrationRequest extends FormRequest
     public function rules()
     {
         return [
-            'username' => 'required|string|min:5|unique:users',
-            'email' => 'required|string|unique:users',
-            'password' => 'required',
+            'title' => 'required|string|min:5|unique:forums',
+            'category_id' => 'required',
+            'description'=>'required|string '
         ];
     }
 
+    /**
+     * @param Validator $validator
+     * @return mixed
+     */
     public function failedValidation(Validator $validator)
     {
         $errorMessages = implode('. ', $validator->errors()->all());

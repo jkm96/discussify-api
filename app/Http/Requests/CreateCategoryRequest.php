@@ -7,7 +7,7 @@ use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
-class ResetPasswordRequest extends FormRequest
+class CreateCategoryRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -27,18 +27,15 @@ class ResetPasswordRequest extends FormRequest
     public function rules()
     {
         return [
-            'email' => 'required|email',
-            'password' => 'required|string|min:5',
-            'token' => 'required|string',
+            'name' => 'required|string|min:5|unique:categories',
         ];
     }
-
 
     /**
      * @param Validator $validator
      * @return mixed
      */
-    public function failedValidation(Validator $validator): mixed
+    public function failedValidation(Validator $validator)
     {
         $errorMessages = implode('. ', $validator->errors()->all());
         throw new HttpResponseException(ResponseHelpers::ConvertToJsonResponseWrapper(

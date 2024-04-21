@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Str;
 
 class Post extends Model
 {
@@ -21,7 +22,36 @@ class Post extends Model
         'title',
         'description',
         'slug',
+        'tags',
     ];
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        // Use the 'creating' event to generate and set the unique slug
+        static::creating(function ($post) {
+            $slug = Str::slug($post->title);
+            $uniqueSlug = $slug;
+
+            // Check for uniqueness and append a number if needed
+            $counter = 1;
+            while (static::where('slug', $uniqueSlug)->exists()) {
+                $uniqueSlug = $slug . '-' . $counter;
+                $counter++;
+            }
+
+            $post->slug = $uniqueSlug;
+        });
+    }
+
+    /**
+     * Get the user associated with this post
+     */
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 
     /**
      * Get replies belonging to the forum
@@ -43,6 +73,9 @@ class Post extends Model
         return $this->hasMany(PostTag::class);
     }
 
+    /**
+     * Get the forum associated with this post
+     */
     public function forum()
     {
         return $this->belongsTo(Forum::class);
