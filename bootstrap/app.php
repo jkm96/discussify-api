@@ -44,6 +44,11 @@ return Application::configure(basePath: dirname(__DIR__))
                 ->prefix('api')
                 ->name('post.')
                 ->group(base_path('routes/api/v1/post.php'));
+
+            Route::middleware('api')
+                ->prefix('api')
+                ->name('post.')
+                ->group(base_path('routes/api/v1/comment.php'));
         },
     )
     ->withMiddleware(function (Middleware $middleware) {
