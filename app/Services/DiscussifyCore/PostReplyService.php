@@ -12,6 +12,7 @@ use App\Utils\Helpers\ResponseHelpers;
 use Exception;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Auth;
 
 class PostReplyService
 {
@@ -22,7 +23,7 @@ class PostReplyService
     public function addNewPostReply($postReplyRequest): JsonResponse
     {
         try {
-            $user = User::findOrFail(auth()->user()->getAuthIdentifier());
+            $user = User::findOrFail(Auth::id());
             $post = Post::findOrFail($postReplyRequest['post_id']);
 
             $postReply = PostReply::create([
@@ -30,6 +31,8 @@ class PostReplyService
                 'post_id' => $post->id,
                 'description' => $postReplyRequest['description']
             ]);
+
+            $postReply->load('user');
 
             return ResponseHelpers::ConvertToJsonResponseWrapper(
                 new PostReplyResource($postReply),
@@ -57,7 +60,17 @@ class PostReplyService
         try {
             $postReply = PostReply::findOrFail($postReplyId);
 
+            // Check if the authenticated user owns the post reply
+            if ($postReply->user_id !== Auth::id()) {
+                return ResponseHelpers::ConvertToJsonResponseWrapper(
+                    ['error' => 'Unauthorized resource edit'],
+                    'You are not authorized to edit this resource',
+                    403
+                );
+            }
+
             $postReply->description = $updateRequest['description'];
+            $postReply->save();
 
             return ResponseHelpers::ConvertToJsonResponseWrapper(
                 new PostReplyResource($postReply),
@@ -75,20 +88,27 @@ class PostReplyService
         }
     }
 
-    public function getPostReplies($postId, $queryParams)
+    /**
+     * @param $postSlug
+     * @param $queryParams
+     * @return JsonResponse
+     */
+    public function getPostReplies($postSlug, $queryParams): JsonResponse
     {
         try {
-            $post = Post::findOrFail($postId);
-            $sortBy = $queryParams['sort_by'];//oldest first, newest first
+            $post = Post::where('slug',$postSlug)->firstOrFail();
+//            $sortBy = $queryParams['sort_by'];//oldest first, newest first
             $postRepliesQuery = $post->postReplies()
                 ->orderBy('created_at', 'desc');;
 
             $pageSize = $userQueryParams['page_size'] ?? 10;
             $currentPage = $userQueryParams['page_number'] ?? 1;
-            $postReplies = $postRepliesQuery->paginate($pageSize, ['*'], 'page', $currentPage);
+
+            $postReplies = $postRepliesQuery->with('user')->paginate($pageSize, ['*'], 'page', $currentPage);
+            $postRepliesCollection = PostReplyResource::collection($postReplies->items());
 
             return ResponseHelpers::ConvertToPagedJsonResponseWrapper(
-                PostReplyResource::collection($postReplies->items()),
+                $postRepliesCollection,
                 'Post replies retrieved successfully',
                 200,
                 $postReplies

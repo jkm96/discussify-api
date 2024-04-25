@@ -19,8 +19,8 @@ class AdminSeeder extends Seeder
             $profileUrl = AuthHelpers::createUserAvatarFromName("petdiariesd", true);
             Admin::create([
                 'username' => 'jkmdroid',
-                'email' => 'jkmdroid@petdiaries.io',
-                'password' => Hash::make('jkm@2pac'),
+                'email' => 'test-jkmdroid@petdiaries.io',
+                'password' => Hash::make('mugu2024?'),
                 'is_active' => true,
                 'profile_url' => $profileUrl
             ]);

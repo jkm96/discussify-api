@@ -28,7 +28,7 @@ class UpdatePostReplyRequest extends FormRequest
     {
         return [
             'post_reply_id' => 'required',
-            'comment'=>'required|string '
+            'description'=>'required|string '
         ];
     }
 

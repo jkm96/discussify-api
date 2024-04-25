@@ -36,18 +36,18 @@ class PostReplyController extends Controller
      * @param UpdatePostReplyRequest $updateRequest
      * @return JsonResponse
      */
-    public function updatePost($postReplyId,UpdatePostReplyRequest $updateRequest): JsonResponse
+    public function updatePostReply($postReplyId,UpdatePostReplyRequest $updateRequest): JsonResponse
     {
         return $this->_postReplyService->editPostReply($postReplyId,$updateRequest);
     }
 
     /**
-     * @param $postId
+     * @param $postSlug
      * @param FetchPostRepliesRequest $postsRequest
      * @return JsonResponse
      */
-    public function getPostReplies($postId,FetchPostRepliesRequest $postsRequest): JsonResponse
+    public function getPostReplies($postSlug,FetchPostRepliesRequest $postsRequest): JsonResponse
     {
-        return $this->_postReplyService->getPostReplies($postId,$postsRequest);
+        return $this->_postReplyService->getPostReplies($postSlug,$postsRequest);
     }
 }

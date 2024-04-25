@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 class Comment extends Model
 {
@@ -23,16 +24,26 @@ class Comment extends Model
 
     public function postReply()
     {
-        return $this->belongsTo(PostReply::class);
+        return $this->belongsTo(PostReply::class, 'post_reply_id');
     }
 
-    public function parentComment()
+    public function user()
     {
-        return $this->belongsTo(Comment::class, 'parent_comment_id');
+        return $this->belongsTo(User::class); // Assuming User model exists
     }
 
-    public function childComments()
+    public function replies()
     {
         return $this->hasMany(Comment::class, 'parent_comment_id');
+    }
+
+    /**
+     * Get the parent commentable model (PostReply or Comment).
+     *
+     * @return MorphTo
+     */
+    public function commentable(): MorphTo
+    {
+        return $this->morphTo();
     }
 }

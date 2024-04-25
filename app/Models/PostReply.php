@@ -4,28 +4,47 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 class PostReply extends Model
 {
     use HasFactory;
 
-    public function post()
+    protected $fillable = [
+        'user_id',
+        'post_id',
+        'description'
+    ];
+
+    /**
+     * Get the post reply author
+     *
+     * @return BelongsTo
+     */
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    /**
+     * Get the post that owns this post reply
+     *
+     * @return BelongsTo
+     */
+    public function post(): BelongsTo
     {
         return $this->belongsTo(Post::class);
     }
 
-    public function comments()
+    /**
+     * Get the comments tied under this post reply
+     *
+     * @return MorphMany
+     */
+    public function comments(): MorphMany
     {
-        return $this->hasMany(Comment::class);
-    }
-
-    public function parentReply()
-    {
-        return $this->belongsTo(Reply::class, 'parent_reply_id');
-    }
-
-    public function childReplies()
-    {
-        return $this->hasMany(Reply::class, 'parent_reply_id');
+        return $this->morphMany(Comment::class, 'commentable');
     }
 }

@@ -17,6 +17,7 @@ use App\Utils\Traits\RecordFilterTrait;
 use Exception;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -82,7 +83,7 @@ class PostService
             $post = Post::findOrFail($postId);
 
             // Check if the authenticated user owns the post
-            if ($post->user_id !== auth()->user()->getAuthIdentifier()) {
+            if ($post->user_id !== Auth::id()) {
                 return ResponseHelpers::ConvertToJsonResponseWrapper(
                     null,
                     'You are not authorized to edit this post',
@@ -180,7 +181,7 @@ class PostService
     public function getPostBySlug($slug): JsonResponse
     {
         try {
-            $Post = Post::with('user', 'forum', 'postReplies')
+            $Post = Post::with('user')
                 ->where('slug', $slug)
                 ->firstOrFail();
 

@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Support\Str;
 
 class Post extends Model
@@ -54,7 +55,7 @@ class Post extends Model
     }
 
     /**
-     * Get replies belonging to the forum
+     * Get post replies belonging to the post
      *
      * @return HasMany
      */

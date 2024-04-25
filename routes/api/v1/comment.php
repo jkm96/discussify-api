@@ -14,6 +14,6 @@ Route::group(['prefix' => 'v1/post-replies', 'namespace' => 'api/v1', 'middlewar
 
     Route::middleware('auth:sanctum')->group(function () {
         Route::post('create', [PostReplyController::class, 'createPostReply']);
-        Route::put('{post_reply_id}/update', [PostReplyController::class, 'updatePostReply']);
+        Route::put('{post_reply_id}/edit', [PostReplyController::class, 'updatePostReply']);
     });
 });

@@ -11,7 +11,6 @@ use Illuminate\Http\JsonResponse;
 
 class PostController extends Controller
 {
-
     private PostService $_postService;
 
     public function __construct(PostService $PostService)
