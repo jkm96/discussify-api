@@ -3,8 +3,6 @@
 use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\ManageFeedbackController;
 use App\Http\Controllers\Admin\ManageUserController;
-use App\Http\Controllers\DiscussifyCore\CategoryController;
-use App\Http\Controllers\DiscussifyCore\ForumController;
 use App\Http\Controllers\DiscussifyCore\PostController;
 use App\Http\Controllers\DiscussifyCore\PostReplyController;
 use Illuminate\Support\Facades\Route;

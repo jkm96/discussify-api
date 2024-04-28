@@ -67,5 +67,22 @@ class Forum extends Model
 
             $forum->slug = $uniqueSlug;
         });
+
+        static::updating(function ($forum) {
+            // Check if the title has changed
+            if ($forum->isDirty('title')) {
+                $slug = Str::slug($forum->title);
+                $uniqueSlug = $slug;
+
+                // Check for uniqueness and append a number if needed
+                $counter = 1;
+                while (static::where('slug', $uniqueSlug)->where('id', '!=', $forum->id)->exists()) {
+                    $uniqueSlug = $slug . '-' . $counter;
+                    $counter++;
+                }
+
+                $forum->slug = $uniqueSlug;
+            }
+        });
     }
 }

@@ -13,7 +13,11 @@ return new class extends Migration
     {
         Schema::create('forum_statistics', function (Blueprint $table) {
             $table->id();
-            $table->id();
+            $table->integer('members')->default(0);
+            $table->integer('posts')->default(0);
+            $table->string('forum_id');
+            $table->string('forum_name');
+            $table->longText('forum_description');
             $table->timestamps();
         });
     }

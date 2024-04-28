@@ -55,6 +55,37 @@ class ForumService
     }
 
     /**
+     * @param $forumId
+     * @param $editForumRequest
+     * @return JsonResponse
+     */
+    public function updateForum($forumId, $editForumRequest): JsonResponse
+    {
+        try {
+            $forum = Forum::where('id', $forumId)
+                ->firstOrFail();
+
+            $forum->title = trim($editForumRequest['title']);
+            $forum->description = trim($editForumRequest['description']);
+            $forum->save();
+
+            return ResponseHelpers::ConvertToJsonResponseWrapper(
+                new ForumResource($forum),
+                'Forum updated successfully',
+                200
+            );
+        } catch (ModelNotFoundException $e) {
+            return ModelCrudHelpers::itemNotFoundError($e);
+        } catch (Exception $e) {
+            return ResponseHelpers::ConvertToJsonResponseWrapper(
+                ['error' => $e->getMessage()],
+                'Error creating forum ',
+                500
+            );
+        }
+    }
+
+    /**
      * @return JsonResponse
      */
     public function getForums(): JsonResponse
@@ -141,9 +172,5 @@ class ForumService
                 500
             );
         }
-    }
-
-    public function getForumStatistics()
-    {
     }
 }

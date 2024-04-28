@@ -23,7 +23,7 @@ class BaseRequest extends FormRequest
     public function commonRules()
     {
         return [
-            'page_size' => 'integer|min:1|max:10',
+            'page_size' => 'integer|min:1',
             'page_number' => 'integer|min:1',
             'order_by' => 'nullable|string',
             'search_term' => 'nullable',

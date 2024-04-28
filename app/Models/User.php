@@ -25,6 +25,11 @@ class User extends Authenticatable
         'is_active',
         'profile_cover_url',
         'profile_url',
+        'posts_count',
+        'post_replies_count',
+        'comments_count',
+        'points_earned',
+        'reaction_score',
     ];
 
     /**
@@ -58,5 +63,25 @@ class User extends Authenticatable
     public function posts()
     {
         return $this->hasMany(Post::class);
+    }
+
+    /**
+     * Get post replies belonging to the user
+     *
+     * @return HasMany
+     */
+    public function postReplies()
+    {
+        return $this->hasMany(PostReply::class);
+    }
+
+    /**
+     * Get comments belonging to the user
+     *
+     * @return HasMany
+     */
+    public function comments()
+    {
+        return $this->hasMany(Comment::class);
     }
 }

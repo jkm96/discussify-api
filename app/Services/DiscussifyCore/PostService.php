@@ -34,6 +34,7 @@ class PostService
         try {
             $forum = Forum::where('slug', $createPostRequest['forum_slug'])
                 ->firstOrFail();
+
             $user = User::findOrFail(auth()->user()->getAuthIdentifier());
 
             $post = Post::create([
@@ -155,8 +156,8 @@ class PostService
 
             $this->applyPostFilters($postsQuery, $queryParams);
 
-            $pageSize = $userQueryParams['page_size'] ?? 10;
-            $currentPage = $userQueryParams['page_number'] ?? 1;
+            $pageSize = $queryParams['page_size'] ?? 10;
+            $currentPage = $queryParams['page_number'] ?? 1;
             $posts = $postsQuery->paginate($pageSize, ['*'], 'page', $currentPage);
 
             return ResponseHelpers::ConvertToPagedJsonResponseWrapper(

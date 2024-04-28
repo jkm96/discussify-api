@@ -37,13 +37,4 @@ class Comment extends Model
         return $this->hasMany(Comment::class, 'parent_comment_id');
     }
 
-    /**
-     * Get the parent commentable model (PostReply or Comment).
-     *
-     * @return MorphTo
-     */
-    public function commentable(): MorphTo
-    {
-        return $this->morphTo();
-    }
 }

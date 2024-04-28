@@ -3,13 +3,11 @@
 namespace App\Http\Controllers\DiscussifyCore;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\CreateCategoryRequest;
-use App\Http\Requests\CreateForumRequest;
+use App\Http\Requests\Forum\CreateForumRequest;
+use App\Http\Requests\Forum\EditForumRequest;
 use App\Http\Requests\Posts\FetchPostsRequest;
-use App\Services\DiscussifyCore\CategoryService;
 use App\Services\DiscussifyCore\ForumService;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 
 class ForumController extends Controller
 {
@@ -31,6 +29,16 @@ class ForumController extends Controller
     }
 
     /**
+     * @param $forumId
+     * @param EditForumRequest $editForumRequest
+     * @return JsonResponse
+     */
+    public function editForum($forumId,EditForumRequest $editForumRequest): JsonResponse
+    {
+        return $this->_forumService->updateForum($forumId,$editForumRequest);
+    }
+
+    /**
      * @return JsonResponse
      */
     public function getForums(): JsonResponse
@@ -39,19 +47,13 @@ class ForumController extends Controller
     }
 
     /**
+     * @param $slug
+     * @param FetchPostsRequest $fetchPostsRequest
      * @return JsonResponse
      */
     public function getForumPosts($slug, FetchPostsRequest $fetchPostsRequest): JsonResponse
     {
         return $this->_forumService->getForumPosts($slug,$fetchPostsRequest);
-    }
-
-    /**
-     * @return JsonResponse
-     */
-    public function getForumStats(): JsonResponse
-    {
-        return $this->_forumService->getForumStatistics();
     }
 
     /**

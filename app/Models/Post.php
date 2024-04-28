@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Support\Str;
 
@@ -62,6 +63,16 @@ class Post extends Model
     public function postReplies()
     {
         return $this->hasMany(PostReply::class);
+    }
+
+    /**
+     * Get comments belonging to the post
+     *
+     * @return HasManyThrough
+     */
+    public function comments()
+    {
+        return $this->hasManyThrough(Comment::class, PostReply::class);
     }
 
     /**
