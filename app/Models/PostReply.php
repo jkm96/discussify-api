@@ -41,10 +41,10 @@ class PostReply extends Model
     /**
      * Get the comments tied under this post reply
      *
-     * @return MorphMany
+     * @return HasMany
      */
-    public function comments(): MorphMany
+    public function comments(): HasMany
     {
-        return $this->morphMany(Comment::class, 'commentable');
+        return $this->hasMany(Comment::class,'post_reply_id');
     }
 }
