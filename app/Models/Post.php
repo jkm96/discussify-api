@@ -25,6 +25,8 @@ class Post extends Model
         'description',
         'slug',
         'tags',
+        'likes',
+        'views'
     ];
 
     protected static function boot()
@@ -91,5 +93,15 @@ class Post extends Model
     public function forum()
     {
         return $this->belongsTo(Forum::class);
+    }
+
+    public function postLikes(): MorphMany
+    {
+        return $this->morphMany(Like::class, 'likeable');
+    }
+
+    public function views()
+    {
+        return $this->belongsToMany(User::class, 'post_views')->withTimestamps();
     }
 }

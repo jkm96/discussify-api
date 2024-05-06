@@ -8,6 +8,7 @@ use App\Models\Category;
 use App\Models\Forum;
 use App\Models\Post;
 use App\Models\PostTag;
+use App\Models\PostView;
 use App\Models\User;
 use App\Utils\Helpers\AuthHelpers;
 use App\Utils\Helpers\ModelCrudHelpers;
@@ -45,7 +46,7 @@ class PostService
                 'tags' => $createPostRequest['tags'] ? trim($createPostRequest['tags']) : ''
             ]);
 
-            if (isset($createPostRequest['tags'])){
+            if (isset($createPostRequest['tags'])) {
                 $tags = trim($createPostRequest['tags']);
                 $tagsArray = explode(',', $tags);
                 $tagsArray = array_map('trim', $tagsArray);
@@ -103,7 +104,7 @@ class PostService
                 $post->forum_id = $forumId;
             }
 
-            if (isset($updatePostRequest['tags'])){
+            if (isset($updatePostRequest['tags'])) {
                 $post->tags = trim($updatePostRequest['tags']);
                 // Update post tags
                 $tags = trim($updatePostRequest['tags']);
@@ -160,6 +161,20 @@ class PostService
             $currentPage = $queryParams['page_number'] ?? 1;
             $posts = $postsQuery->paginate($pageSize, ['*'], 'page', $currentPage);
 
+            if (Auth::guard('api')->user()){
+                $user = Auth::guard('api')->user();
+                $viewedPostIds = $posts->pluck('id');
+                $userViewedPostIds = PostView::where('user_id', $user->getAuthIdentifier())
+                    ->whereIn('post_id', $viewedPostIds)
+                    ->pluck('post_id')
+                    ->toArray();
+
+                // Add a field indicating whether each post has been viewed by the user
+                $posts->each(function ($post) use ($userViewedPostIds) {
+                    $post->setAttribute('userHasViewed', in_array($post->id, $userViewedPostIds));
+                });
+            }
+
             return ResponseHelpers::ConvertToPagedJsonResponseWrapper(
                 PostResource::collection($posts->items()),
                 'Posts retrieved successfully',
@@ -182,12 +197,37 @@ class PostService
     public function getPostBySlug($slug): JsonResponse
     {
         try {
-            $Post = Post::with('user')
+            $post = Post::with('user')
                 ->where('slug', $slug)
                 ->firstOrFail();
 
+            $likesCount = $post->postLikes->count();
+            $likingUsersUrls = $post->postLikes->pluck('user.profile_url')
+                ->unique()
+                ->toArray();
+            $post->unsetRelation('postLikes');
+
+            $post->views += 1;
+            $post->save();
+
+            if (Auth::guard('api')->user()){
+                $userId = Auth::guard('api')->id();
+                if (!$post->views()->where('user_id', $userId)->exists()){
+                    $post->views()->attach($userId);
+                    $post->increment('views');
+                }
+            }
+
+            $responseData = [
+                'post' => new PostResource($post),
+                'postLikes' => [
+                    'likes' => $likesCount,
+                    'users' => $likingUsersUrls,
+                ]
+            ];
+
             return ResponseHelpers::ConvertToJsonResponseWrapper(
-                new PostResource($Post),
+                $responseData,
                 'Post retrieved successfully',
                 200
             );
@@ -208,10 +248,10 @@ class PostService
     public function getCoverPosts(): JsonResponse
     {
         try {
-            $Posts = Post::with('user', 'forum')->get();
+            $posts = Post::with('user', 'forum')->take(4)->get();
 
             return ResponseHelpers::ConvertToJsonResponseWrapper(
-                PostResource::collection($Posts),
+                PostResource::collection($posts),
                 'Posts retrieved successfully',
                 200
             );

@@ -64,6 +64,7 @@ class ForumStatisticsCommand extends Command
                 $post->post_replies_count = $replyCount;
                 $post->participants = $participants;
                 $post->comments_count = $commentsCount;
+                $post->likes = $post->postLikes()->count();
                 $post->save();
 
                 Log::info("Post: {$post->title}, Participants: {$participants},Comments: {$commentsCount}, Replies: {$replyCount}");
