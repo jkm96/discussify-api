@@ -11,6 +11,7 @@ use App\Models\User;
 use App\Utils\Helpers\AuthHelpers;
 use App\Utils\Helpers\ModelCrudHelpers;
 use App\Utils\Helpers\ResponseHelpers;
+use App\Utils\Traits\PostTrait;
 use App\Utils\Traits\RecordFilterTrait;
 use Exception;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -19,6 +20,7 @@ use Illuminate\Http\JsonResponse;
 class ForumService
 {
     use RecordFilterTrait;
+    use PostTrait;
 
     /**
      * @param $createForumRequest
@@ -126,6 +128,9 @@ class ForumService
             $pageSize = $userQueryParams['page_size'] ?? 10;
             $currentPage = $userQueryParams['page_number'] ?? 1;
             $posts = $postsQuery->paginate($pageSize, ['*'], 'page', $currentPage);
+            $posts->getCollection()->load('user');
+
+            $this->checkIfUserHasViewedPost($posts);
 
             $response = [
                 'forum' => new ForumResource($forum),

@@ -14,6 +14,7 @@ use App\Utils\Helpers\AuthHelpers;
 use App\Utils\Helpers\ModelCrudHelpers;
 use App\Utils\Helpers\ResponseHelpers;
 use App\Utils\Traits\DateFilterTrait;
+use App\Utils\Traits\PostTrait;
 use App\Utils\Traits\RecordFilterTrait;
 use Exception;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -25,6 +26,7 @@ use Illuminate\Support\Facades\Log;
 class PostService
 {
     use RecordFilterTrait;
+    use PostTrait;
 
     /**
      * @param $createPostRequest
@@ -60,7 +62,7 @@ class PostService
 
             return ResponseHelpers::ConvertToJsonResponseWrapper(
                 new PostResource($post),
-                'Post created successfully',
+                'Thread created successfully',
                 200
             );
         } catch (ModelNotFoundException $e) {
@@ -88,7 +90,7 @@ class PostService
             if ($post->user_id !== Auth::id()) {
                 return ResponseHelpers::ConvertToJsonResponseWrapper(
                     null,
-                    'You are not authorized to edit this post',
+                    'You are not authorized to edit this thread',
                     403
                 );
             }
@@ -129,7 +131,7 @@ class PostService
 
             return ResponseHelpers::ConvertToJsonResponseWrapper(
                 new PostResource($post),
-                'Post updated successfully',
+                'Thread updated successfully',
                 200
             );
         } catch (ModelNotFoundException $e) {
@@ -139,7 +141,7 @@ class PostService
             DB::rollBack();
             return ResponseHelpers::ConvertToJsonResponseWrapper(
                 ['error' => $e->getMessage()],
-                'Error updating Post',
+                'Error updating Thread',
                 500
             );
         }
@@ -161,30 +163,18 @@ class PostService
             $currentPage = $queryParams['page_number'] ?? 1;
             $posts = $postsQuery->paginate($pageSize, ['*'], 'page', $currentPage);
 
-            if (Auth::guard('api')->user()){
-                $user = Auth::guard('api')->user();
-                $viewedPostIds = $posts->pluck('id');
-                $userViewedPostIds = PostView::where('user_id', $user->getAuthIdentifier())
-                    ->whereIn('post_id', $viewedPostIds)
-                    ->pluck('post_id')
-                    ->toArray();
-
-                // Add a field indicating whether each post has been viewed by the user
-                $posts->each(function ($post) use ($userViewedPostIds) {
-                    $post->setAttribute('userHasViewed', in_array($post->id, $userViewedPostIds));
-                });
-            }
+            $this->checkIfUserHasViewedPost($posts);
 
             return ResponseHelpers::ConvertToPagedJsonResponseWrapper(
                 PostResource::collection($posts->items()),
-                'Posts retrieved successfully',
+                'Threads retrieved successfully',
                 200,
                 $posts
             );
         } catch (Exception $e) {
             return ResponseHelpers::ConvertToPagedJsonResponseWrapper(
                 ['error' => $e->getMessage()],
-                'Error retrieving Posts',
+                'Error retrieving Threads',
                 500
             );
         }
@@ -228,7 +218,7 @@ class PostService
 
             return ResponseHelpers::ConvertToJsonResponseWrapper(
                 $responseData,
-                'Post retrieved successfully',
+                'Thread retrieved successfully',
                 200
             );
         } catch (ModelNotFoundException $e) {
@@ -236,7 +226,7 @@ class PostService
         } catch (Exception $e) {
             return ResponseHelpers::ConvertToJsonResponseWrapper(
                 ['error' => $e->getMessage()],
-                'Error retrieving post',
+                'Error retrieving Thread',
                 500
             );
         }
@@ -252,13 +242,13 @@ class PostService
 
             return ResponseHelpers::ConvertToJsonResponseWrapper(
                 PostResource::collection($posts),
-                'Posts retrieved successfully',
+                'Threads retrieved successfully',
                 200
             );
         } catch (Exception $e) {
             return ResponseHelpers::ConvertToJsonResponseWrapper(
                 ['error' => $e->getMessage()],
-                'Error retrieving Posts',
+                'Error retrieving threads',
                 500
             );
         }
