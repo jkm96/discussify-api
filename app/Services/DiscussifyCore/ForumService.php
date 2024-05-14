@@ -93,7 +93,7 @@ class ForumService
     public function getForums(): JsonResponse
     {
         try {
-            $forums = Forum::with('category')->get();
+            $forums = Forum::get();
 
             return ResponseHelpers::ConvertToJsonResponseWrapper(
                 ForumResource::collection($forums),
@@ -130,7 +130,7 @@ class ForumService
             $posts = $postsQuery->paginate($pageSize, ['*'], 'page', $currentPage);
             $posts->getCollection()->load('user');
 
-            $this->checkIfUserHasViewedPost($posts);
+            $this->checkIfUserHasViewedPostOrFollowedPostAuthor($posts);
 
             $response = [
                 'forum' => new ForumResource($forum),

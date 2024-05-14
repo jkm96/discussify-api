@@ -28,7 +28,9 @@ class UpdatePostRequest extends FormRequest
     {
         return [
             'title' => 'required|string|min:5',
-            'description'=>'required|string '
+            'description'=>'required|string ',
+            'tags'=>'required|string ',
+            'type'=>'required|string ',
         ];
     }
 

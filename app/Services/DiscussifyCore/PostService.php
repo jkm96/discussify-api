@@ -5,6 +5,7 @@ namespace App\Services\DiscussifyCore;
 use App\Http\Resources\CategoryResource;
 use App\Http\Resources\PostResource;
 use App\Models\Category;
+use App\Models\Follow;
 use App\Models\Forum;
 use App\Models\Post;
 use App\Models\PostTag;
@@ -35,10 +36,10 @@ class PostService
     public function addNewPost($createPostRequest): JsonResponse
     {
         try {
+            $user = User::findOrFail(Auth::id());
+
             $forum = Forum::where('slug', $createPostRequest['forum_slug'])
                 ->firstOrFail();
-
-            $user = User::findOrFail(auth()->user()->getAuthIdentifier());
 
             $post = Post::create([
                 'title' => trim($createPostRequest['title']),
@@ -59,9 +60,13 @@ class PostService
                     ]);
                 }
             }
+            $newPost = Post::where('id',$post->id)->first();
+            $newPost->setAttribute('userHasViewed', false);
+            $newPost->setAttribute('userHasFollowedAuthor', false);
+            $newPost->load('user','forum');
 
             return ResponseHelpers::ConvertToJsonResponseWrapper(
-                new PostResource($post),
+                new PostResource($newPost),
                 'Thread created successfully',
                 200
             );
@@ -97,32 +102,31 @@ class PostService
 
             DB::beginTransaction();
 
-            // Update post attributes based on request data
-            $post->title = trim($updatePostRequest['title']);
-            $post->description = trim($updatePostRequest['description']);
-            if (isset($updatePostRequest['forum_id'])) {
-                $forumId = $updatePostRequest['forum_id'];
-                Forum::findOrFail($forumId);
-                $post->forum_id = $forumId;
-            }
+            switch($updatePostRequest['type']){
+                case 'description':
+                    $post->description = trim($updatePostRequest['description']);
+                    break;
+                case 'title':
+                    $post->title = trim($updatePostRequest['title']);
+                    break;
+                case 'tags':
+                    $post->tags = trim($updatePostRequest['tags']);
+                    // Update post tags
+                    $tags = trim($updatePostRequest['tags']);
+                    $tagsArray = explode(',', $tags);
+                    $tagsArray = array_map('trim', $tagsArray);
 
-            if (isset($updatePostRequest['tags'])) {
-                $post->tags = trim($updatePostRequest['tags']);
-                // Update post tags
-                $tags = trim($updatePostRequest['tags']);
-                $tagsArray = explode(',', $tags);
-                $tagsArray = array_map('trim', $tagsArray);
+                    // Delete existing post tags
+                    $post->postTags()->delete();
 
-                // Delete existing post tags
-                $post->postTags()->delete();
-
-                // Create new post tags
-                foreach ($tagsArray as $tag) {
-                    PostTag::create([
-                        'post_id' => $post->id,
-                        'tag' => $tag
-                    ]);
-                }
+                    // Create new post tags
+                    foreach ($tagsArray as $tag) {
+                        PostTag::create([
+                            'post_id' => $post->id,
+                            'tag' => $tag
+                        ]);
+                    }
+                    break;
             }
 
             $post->save();
@@ -141,7 +145,7 @@ class PostService
             DB::rollBack();
             return ResponseHelpers::ConvertToJsonResponseWrapper(
                 ['error' => $e->getMessage()],
-                'Error updating Thread',
+                'Error updating thread',
                 500
             );
         }
@@ -163,7 +167,7 @@ class PostService
             $currentPage = $queryParams['page_number'] ?? 1;
             $posts = $postsQuery->paginate($pageSize, ['*'], 'page', $currentPage);
 
-            $this->checkIfUserHasViewedPost($posts);
+            $this->checkIfUserHasViewedPostOrFollowedPostAuthor($posts);
 
             return ResponseHelpers::ConvertToPagedJsonResponseWrapper(
                 PostResource::collection($posts->items()),
@@ -200,16 +204,24 @@ class PostService
             $post->views += 1;
             $post->save();
 
+            $userHasFollowedAuthor = false;
             if (Auth::guard('api')->user()){
                 $userId = Auth::guard('api')->id();
                 if (!$post->views()->where('user_id', $userId)->exists()){
                     $post->views()->attach($userId);
                     $post->increment('views');
                 }
+
+                // Check if the user has followed the post author
+                $userHasFollowedAuthor = Follow::where('user_id', $userId)
+                    ->where('followable_id', $post->user_id)
+                    ->where('followable_type', 'App\\Models\\User')
+                    ->exists();
             }
 
             $responseData = [
                 'post' => new PostResource($post),
+                'userHasFollowedAuthor' => $userHasFollowedAuthor,
                 'postLikes' => [
                     'likes' => $likesCount,
                     'users' => $likingUsersUrls,

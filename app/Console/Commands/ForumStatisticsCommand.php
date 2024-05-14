@@ -6,6 +6,7 @@ use App\Models\ForumStatistics;
 use App\Models\Post;
 use App\Models\User;
 use Illuminate\Console\Command;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Log;
 
 class ForumStatisticsCommand extends Command
@@ -30,8 +31,7 @@ class ForumStatisticsCommand extends Command
     public function handle()
     {
         $forumStatistics = ForumStatistics::first();
-        if ($forumStatistics){
-            Log::info($forumStatistics);
+        if ($forumStatistics) {
             $totalMembers = User::count();
             $totalPosts = Post::count();
 
@@ -39,23 +39,76 @@ class ForumStatisticsCommand extends Command
             $forumStatistics->posts = $totalPosts;
             $forumStatistics->save();
 
-            $users = User::with('posts', 'postReplies', 'comments')->get();
+            $this->calculateUserStats();
+
+            $this->calculatePostStats();
+
+            Log::info('Forum statistics updated successfully.');
+        }
+    }
+
+    /**
+     * @return void
+     */
+    public function calculateUserStats(): void
+    {
+        $perPage = 10;
+        $page = 1;
+
+        $users = $this->getUsers($perPage, $page);
+
+        while ($page <= $users->lastPage()) {
 
             foreach ($users as $user) {
                 $postCount = $user->posts()->count();
                 $replyCount = $user->postReplies()->count();
                 $commentsCount = $user->comments()->count();
+                $followingCount = $user->following()->count();
+                $followers = $user->followers()->count();
+
+                $likesCount = $user->posts()->with('postLikes')->get()->map(function ($post) {
+                    return $post->postLikes->count();
+                })->sum();
 
                 $user->posts_count = $postCount;
                 $user->post_replies_count = $replyCount;
                 $user->comments_count = $commentsCount;
+                $user->following = $followingCount;
                 $user->save();
 
-                Log::info("User: {$user->name}, Posts: {$postCount}, Replies: {$replyCount}");
+                Log::info("User: {$user->name}, Followers: {$followers},Following: {$followingCount}, Posts: {$postCount}, Replies: {$replyCount}");
             }
 
-            $posts = Post::with( 'postReplies', 'comments')->get();
+            // Move to the next page
+            $page++;
 
+            // Fetch the next page of users
+            $users = $this->getUsers($perPage, $page);
+        }
+    }
+
+    /**
+     * @param int $perPage
+     * @param int $page
+     * @return LengthAwarePaginator
+     */
+    public function getUsers(int $perPage, int $page): LengthAwarePaginator
+    {
+        return User::with('posts', 'postReplies', 'comments')
+            ->paginate($perPage, ['*'], 'page', $page);
+    }
+
+    /**
+     * @return void
+     */
+    public function calculatePostStats(): void
+    {
+        $perPage = 10;
+        $page = 1;
+
+        $posts = $this->getPosts($perPage, $page);
+
+        while ($page <= $posts->lastPage()) {
             foreach ($posts as $post) {
                 $replyCount = $post->postReplies()->count();
                 $commentsCount = $post->comments()->count();
@@ -70,7 +123,22 @@ class ForumStatisticsCommand extends Command
                 Log::info("Post: {$post->title}, Participants: {$participants},Comments: {$commentsCount}, Replies: {$replyCount}");
             }
 
-            Log::info('Forum statistics updated successfully.');
+            // Move to the next page
+            $page++;
+
+            // Fetch the next page of posts
+            $posts = $this->getPosts($perPage, $page);
         }
+    }
+
+    /**
+     * @param int $perPage
+     * @param int $page
+     * @return LengthAwarePaginator
+     */
+    public function getPosts(int $perPage, int $page): LengthAwarePaginator
+    {
+        return Post::with('postReplies', 'comments')
+            ->paginate($perPage, ['*'], 'page', $page);
     }
 }

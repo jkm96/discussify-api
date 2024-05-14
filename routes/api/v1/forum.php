@@ -2,7 +2,6 @@
 
 use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\ManageFeedbackController;
-use App\Http\Controllers\Admin\ManageUserController;
 use App\Http\Controllers\DiscussifyCore\ForumController;
 use Illuminate\Support\Facades\Route;
 

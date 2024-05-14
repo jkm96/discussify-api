@@ -13,9 +13,9 @@ Route::group(['prefix' => 'v1/initialize', 'namespace' => 'api/v1', 'middleware'
     });
 });
 
-Route::group(['prefix' => 'v1/like', 'namespace' => 'api/v1', 'middleware' => 'api'], function () {
+Route::group(['prefix' => 'v1/toggle-follow-like', 'namespace' => 'api/v1', 'middleware' => 'api'], function () {
     Route::middleware(Authenticate::using('sanctum'))->group(function () {
-        Route::post('', [SharedController::class, 'toggleRecordLike']);
+        Route::post('', [SharedController::class, 'toggleRecordFollowOrLike']);
     });
 });
 

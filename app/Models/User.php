@@ -55,6 +55,16 @@ class User extends Authenticatable
         ];
     }
 
+    public function following()
+    {
+        return $this->morphToMany(User::class, 'followable', 'follows', 'user_id', 'followable_id');
+    }
+
+    public function followers()
+    {
+        return $this->morphedByMany(User::class, 'followable', 'follows', 'followable_id', 'user_id');
+    }
+
     /**
      * Get posts belonging to the user
      *

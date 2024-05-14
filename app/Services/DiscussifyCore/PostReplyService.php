@@ -9,13 +9,16 @@ use App\Models\PostReply;
 use App\Models\User;
 use App\Utils\Helpers\ModelCrudHelpers;
 use App\Utils\Helpers\ResponseHelpers;
+use App\Utils\Traits\PostTrait;
 use Exception;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 
 class PostReplyService
 {
+    use PostTrait;
     /**
      * @param $postReplyRequest
      * @return JsonResponse
@@ -97,14 +100,19 @@ class PostReplyService
     {
         try {
             $post = Post::where('slug',$postSlug)->firstOrFail();
-//            $sortBy = $queryParams['sort_by'];//oldest first, newest first
-            $postRepliesQuery = $post->postReplies()
-                ->orderBy('created_at', 'desc');;
+            // Extract the sort_by parameter from $queryParams
+            $sortBy = Arr::get($queryParams, 'sort_by', 'latest'); // Default to 'latest' if not provided
+            $orderBy = $sortBy === 'oldest' ? 'asc' : 'desc';
 
-            $pageSize = $userQueryParams['page_size'] ?? 10;
-            $currentPage = $userQueryParams['page_number'] ?? 1;
+            $postRepliesQuery = $post->postReplies()->orderBy('created_at', $orderBy);
+
+            $pageSize = Arr::get($queryParams, 'page_size', 10);
+            $currentPage = Arr::get($queryParams, 'page_number', 1);
 
             $postReplies = $postRepliesQuery->with('user')->paginate($pageSize, ['*'], 'page', $currentPage);
+
+            $this->checkIfUserHasFollowedRecordAuthor($postReplies);
+
             $postRepliesCollection = PostReplyResource::collection($postReplies->items());
 
             return ResponseHelpers::ConvertToPagedJsonResponseWrapper(

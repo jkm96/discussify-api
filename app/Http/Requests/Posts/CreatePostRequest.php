@@ -28,8 +28,9 @@ class CreatePostRequest extends FormRequest
     {
         return [
             'title' => 'required|string|min:5|unique:posts',
-            'forum_slug' => 'required',
-            'description'=>'required|string '
+            'forum_slug' => 'required|string',
+            'description'=>'required|string ',
+            'tags'=>'nullable|string'
         ];
     }
 
