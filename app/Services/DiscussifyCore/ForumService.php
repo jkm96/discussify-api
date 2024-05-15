@@ -117,11 +117,11 @@ class ForumService
     public function getForumPosts($slug, $fetchPostsRequest): JsonResponse
     {
         try {
-            // Retrieve the forum by its slug
             $forum = Forum::where('slug', $slug)->firstOrFail();
 
-            // Fetch posts related to the forum
-            $postsQuery = $forum->posts()->orderBy('created_at', 'desc');
+            $postsQuery = $forum->posts()
+                ->withCount('postReplies')
+                ->orderByDesc('created_at');
 
             $this->applyPostFilters($postsQuery, $fetchPostsRequest);
 
@@ -129,6 +129,17 @@ class ForumService
             $currentPage = $userQueryParams['page_number'] ?? 1;
             $posts = $postsQuery->paginate($pageSize, ['*'], 'page', $currentPage);
             $posts->getCollection()->load('user');
+
+            $posts->getCollection()->each(function ($post) {
+                $lastReply = $post->postReplies()->latest()->first();
+                if ($lastReply) {
+                    $post->setAttribute('last_reply_user', $lastReply->user);
+                    $post->setAttribute('last_reply_created_at', $lastReply->created_at);
+                } else {
+                    $post->setAttribute('last_reply_user', null);
+                    $post->setAttribute('last_reply_created_at', null);
+                }
+            });
 
             $this->checkIfUserHasViewedPostOrFollowedPostAuthor($posts);
 

@@ -18,17 +18,15 @@ trait PostTrait
     {
         if (Auth::guard('api')->user()) {
             $user = Auth::guard('api')->user();
-            //has viewed post
+
             $viewedPostIds = $posts->pluck('id');
             $userViewedPostIds = PostView::where('user_id', $user->getAuthIdentifier())
                 ->whereIn('post_id', $viewedPostIds)
                 ->pluck('post_id')
                 ->toArray();
 
-            //check if the current user has followed post authors
             $userFollowedAuthor = $this->getUserHasFollowedRecordAuthor($posts, $user);
 
-            // Add a field indicating whether each post has been viewed by the user
             $posts->each(function ($post) use ($userViewedPostIds, $userFollowedAuthor) {
                 $post->setAttribute('userHasViewed', in_array($post->id, $userViewedPostIds));
                 $post->setAttribute('userHasFollowedAuthor', in_array($post->user_id, $userFollowedAuthor));
