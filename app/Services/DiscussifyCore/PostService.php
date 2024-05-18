@@ -38,6 +38,14 @@ class PostService
         try {
             $user = User::findOrFail(Auth::id());
 
+            if ($user->is_email_verified == 0){
+                return ResponseHelpers::ConvertToJsonResponseWrapper(
+                    ['error' => 'Email address not verified'],
+                    'Error creating thread. Unverified email address ',
+                    401
+                );
+            }
+
             $forum = Forum::where('slug', $createPostRequest['forum_slug'])
                 ->firstOrFail();
 
@@ -250,7 +258,10 @@ class PostService
     public function getCoverPosts(): JsonResponse
     {
         try {
-            $posts = Post::with('user', 'forum')->take(4)->get();
+            $posts = Post::with('user', 'forum')
+                ->where('is_system',0)
+                ->take(4)
+                ->get();
 
             return ResponseHelpers::ConvertToJsonResponseWrapper(
                 PostResource::collection($posts),

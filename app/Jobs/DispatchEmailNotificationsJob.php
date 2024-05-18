@@ -66,15 +66,6 @@ class DispatchEmailNotificationsJob implements ShouldQueue
                 case EmailTypes::USER_FORGOT_PASSWORD->name:
                     $email = new UserForgotPasswordMail($emailData);
                     break;
-                case EmailTypes::PAYMENT_CHECKOUT_RECEIPT->name:
-                    $email = new PaymentCheckoutReceiptMail($emailData);
-                    break;
-                case EmailTypes::PAYMENT_CHECKOUT_CONFIRMATION->name:
-                    $email = new PaymentCheckoutConfirmationMail($emailData);
-                    break;
-                case EmailTypes::SUBSCRIPTION_RENEWAL_CONFIRMATION->name:
-                    $email = new SubscriptionRenewalConfirmationMail($emailData);
-                    break;
             }
             Log::info("sent email to " . $emailData['recipientEmail']);
             Mail::to($emailData['recipientEmail'])->send($email);

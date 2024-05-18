@@ -125,8 +125,8 @@ class ForumService
 
             $this->applyPostFilters($postsQuery, $fetchPostsRequest);
 
-            $pageSize = $userQueryParams['page_size'] ?? 10;
-            $currentPage = $userQueryParams['page_number'] ?? 1;
+            $pageSize = $fetchPostsRequest['page_size'] ?? 10;
+            $currentPage = $fetchPostsRequest['page_number'] ?? 1;
             $posts = $postsQuery->paginate($pageSize, ['*'], 'page', $currentPage);
             $posts->getCollection()->load('user');
 
@@ -170,8 +170,7 @@ class ForumService
     public function getForumBySlug($slug): JsonResponse
     {
         try {
-            $forum = Forum::with('posts')
-                ->where('slug', $slug)
+            $forum = Forum::where('slug', $slug)
                 ->firstOrFail();
 
             return ResponseHelpers::ConvertToJsonResponseWrapper(

@@ -48,11 +48,6 @@ trait PostTrait
         }
     }
 
-    /**
-     * @param $posts
-     * @param Authenticatable|null $user
-     * @return mixed
-     */
     public function getUserHasFollowedRecordAuthor($posts, $user)
     {
         //check if the current user has followed post authors

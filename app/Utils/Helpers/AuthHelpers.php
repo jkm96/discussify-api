@@ -33,6 +33,17 @@ class AuthHelpers
             ];
         }
 
+        $graceDays = (int)env('DISCUSSIFY_EVGP');//email_verification_grace_period
+        $creationDate = \Illuminate\Support\Carbon::parse($apiUser->created_at);
+        $expirationDate = $creationDate->copy()->addDays($graceDays);
+        $daysLeft = round(Carbon::now()->diffInDays($expirationDate, false));
+        $gracePeriodExpired = Carbon::now()->greaterThan($expirationDate);
+
+        $apiUser->setAttribute('created_at', $creationDate);
+        $apiUser->setAttribute('grace_period_count', $daysLeft);
+        $apiUser->setAttribute('is_grace_period_expired', $gracePeriodExpired);
+        $apiUser->setAttribute('grace_period_expiration', $expirationDate);
+
         return [
             "token" => new TokenResource($tokenDetails),
             "user" => new UserResource($apiUser)
