@@ -9,7 +9,7 @@ use App\Models\Follow;
 use App\Models\Forum;
 use App\Models\Post;
 use App\Models\PostTag;
-use App\Models\PostView;
+use App\Models\View;
 use App\Models\User;
 use App\Utils\Helpers\AuthHelpers;
 use App\Utils\Helpers\ModelCrudHelpers;
@@ -53,6 +53,7 @@ class PostService
                 'title' => trim($createPostRequest['title']),
                 'description' => trim($createPostRequest['description']),
                 'forum_id' => $forum->id,
+                'is_system' => $forum->is_system,
                 'user_id' => $user->id,
                 'tags' => $createPostRequest['tags'] ? trim($createPostRequest['tags']) : ''
             ]);
@@ -216,7 +217,11 @@ class PostService
             if (Auth::guard('api')->user()){
                 $userId = Auth::guard('api')->id();
                 if (!$post->views()->where('user_id', $userId)->exists()){
-                    $post->views()->attach($userId);
+                    $post->views()->create([
+                        'user_id' => $userId,
+                        'viewable_id' => $post->id,
+                        'viewable_type' => get_class($post),
+                    ]);
                     $post->increment('views');
                 }
 

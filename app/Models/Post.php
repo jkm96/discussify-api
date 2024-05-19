@@ -102,6 +102,6 @@ class Post extends Model
 
     public function views()
     {
-        return $this->belongsToMany(User::class, 'post_views')->withTimestamps();
+        return $this->morphMany(View::class, 'viewable');
     }
 }

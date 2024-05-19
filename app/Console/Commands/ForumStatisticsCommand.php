@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Models\Forum;
 use App\Models\ForumStatistics;
 use App\Models\Post;
 use App\Models\User;
@@ -42,6 +43,8 @@ class ForumStatisticsCommand extends Command
             $this->calculateUserStats();
 
             $this->calculatePostStats();
+
+            $this->calculateForumStats();
 
             Log::info('Forum statistics updated successfully.');
         }
@@ -131,6 +134,34 @@ class ForumStatisticsCommand extends Command
         }
     }
 
+/**
+     * @return void
+     */
+    public function calculateForumStats(): void
+    {
+        $perPage = 10;
+        $page = 1;
+
+        $forums = $this->getForums($perPage, $page);
+
+        while ($page <= $forums->lastPage()) {
+            foreach ($forums as $forum) {
+                $postCount = $forum->posts()->count();
+
+                $forum->post_count = $postCount;
+                $forum->save();
+
+                Log::info("Forum: {$forum->title}, Posts: {$postCount}");
+            }
+
+            // Move to the next page
+            $page++;
+
+            // Fetch the next page of posts
+            $forums = $this->getPosts($perPage, $page);
+        }
+    }
+
     /**
      * @param int $perPage
      * @param int $page
@@ -139,6 +170,17 @@ class ForumStatisticsCommand extends Command
     public function getPosts(int $perPage, int $page): LengthAwarePaginator
     {
         return Post::with('postReplies', 'comments')
+            ->paginate($perPage, ['*'], 'page', $page);
+    }
+
+    /**
+     * @param int $perPage
+     * @param int $page
+     * @return LengthAwarePaginator
+     */
+    public function getForums(int $perPage, int $page): LengthAwarePaginator
+    {
+        return Forum::with('posts')
             ->paginate($perPage, ['*'], 'page', $page);
     }
 }

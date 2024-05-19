@@ -16,6 +16,7 @@ use App\Utils\Traits\RecordFilterTrait;
 use Exception;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Auth;
 
 class ForumService
 {
@@ -172,6 +173,21 @@ class ForumService
         try {
             $forum = Forum::where('slug', $slug)
                 ->firstOrFail();
+
+            if (Auth::guard('api')->user()) {
+                $userId = Auth::guard('api')->id();
+                if (!$forum->views()->where('user_id', $userId)->exists()) {
+                    $forum->views()->create([
+                        'user_id' => $userId,
+                        'viewable_id' => $forum->id,
+                        'viewable_type' => get_class($forum),
+                    ]);
+                    $forum->increment('views');
+                }
+            }
+
+            $forum->views += 1;
+            $forum->save();
 
             return ResponseHelpers::ConvertToJsonResponseWrapper(
                 new ForumResource($forum),

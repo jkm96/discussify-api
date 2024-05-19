@@ -21,7 +21,9 @@ class Forum extends Model
         'title',
         'description',
         'avatar_url',
-        'category_id'
+        'category_id',
+        'views',
+        'post_count',
     ];
 
     /**
@@ -42,6 +44,11 @@ class Forum extends Model
     public function posts()
     {
         return $this->hasMany(Post::class);
+    }
+
+    public function views()
+    {
+        return $this->morphMany(View::class, 'viewable');
     }
 
     /**

@@ -11,11 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('forums', function (Blueprint $table) {
+        Schema::table('posts', function (Blueprint $table) {
             $table->boolean('is_system')->default(0);
-            $table->boolean('views')->default(0);
-            $table->boolean('post_count')->default(0);
-            $table->boolean('likes')->default(0);
         });
     }
 
@@ -24,11 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('forums', function (Blueprint $table) {
+        Schema::table('posts', function (Blueprint $table) {
             $table->dropColumn('is_system');
-            $table->dropColumn('views');
-            $table->dropColumn('post_count');
-            $table->dropColumn('likes');
         });
     }
 };

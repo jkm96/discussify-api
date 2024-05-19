@@ -3,7 +3,8 @@
 namespace App\Utils\Traits;
 
 use App\Models\Follow;
-use App\Models\PostView;
+use App\Models\Post;
+use App\Models\View;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Auth;
@@ -20,9 +21,10 @@ trait PostTrait
             $user = Auth::guard('api')->user();
 
             $viewedPostIds = $posts->pluck('id');
-            $userViewedPostIds = PostView::where('user_id', $user->getAuthIdentifier())
-                ->whereIn('post_id', $viewedPostIds)
-                ->pluck('post_id')
+            $userViewedPostIds = View::where('user_id', $user->getAuthIdentifier())
+                ->whereIn('viewable_id', $viewedPostIds)
+                ->where('viewable_type', Post::class)
+                ->pluck('viewable_id')
                 ->toArray();
 
             $userFollowedAuthor = $this->getUserHasFollowedRecordAuthor($posts, $user);
