@@ -13,9 +13,9 @@ return new class extends Migration
     {
         Schema::table('forums', function (Blueprint $table) {
             $table->boolean('is_system')->default(0);
-            $table->boolean('views')->default(0);
-            $table->boolean('post_count')->default(0);
-            $table->boolean('likes')->default(0);
+            $table->integer('views')->default(0);
+            $table->integer('post_count')->default(0);
+            $table->integer('likes')->default(0);
         });
     }
 
