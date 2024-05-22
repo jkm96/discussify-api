@@ -2,9 +2,6 @@
 
 namespace App\Jobs;
 
-use App\Mail\PaymentCheckoutConfirmationMail;
-use App\Mail\PaymentCheckoutReceiptMail;
-use App\Mail\SubscriptionRenewalConfirmationMail;
 use App\Mail\UserForgotPasswordMail;
 use App\Mail\UserVerificationMail;
 use App\Utils\Enums\EmailTypes;
@@ -27,7 +24,7 @@ class DispatchEmailNotificationsJob implements ShouldQueue
      *
      * @var int
      */
-    public $tries = 1;
+    public $tries = 5;
     /**
      * The maximum number of unhandled exceptions to allow before failing.
      *

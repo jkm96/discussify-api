@@ -26,7 +26,8 @@ class Post extends Model
         'slug',
         'tags',
         'likes',
-        'views'
+        'views',
+        'is_system',
     ];
 
     protected static function boot()
