@@ -60,7 +60,7 @@ class AuthUserService
 
             $tokenResource = AuthHelpers::getUserTokenResource($user, 0);
 
-            return ResponseHelpers::ConvertToJsonResponseWrapper($tokenResource, "Registered successfully'", 200);
+            return ResponseHelpers::ConvertToJsonResponseWrapper($tokenResource, 'Registered successfully', 200);
         } catch (Exception $e) {
             DB::rollBack();
             return ResponseHelpers::ConvertToJsonResponseWrapper(['error' => $e->getMessage()], 'Error during registration', 500);

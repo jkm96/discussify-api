@@ -91,7 +91,7 @@
     </p>
 
     <p>If you have any questions or need assistance, feel free to reach out. Our team is here to help!</p>
-    <p>Wishing you and your pets wonderful moments on Pet Diaries!</p>
+    <p>Wishing you wonderful moments on Discussify!</p>
 
     @include('mail.slogan')
 
