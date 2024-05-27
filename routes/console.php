@@ -5,7 +5,7 @@ use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Schedule;
 
 Schedule::command('app:forum-statistics-command')
-    ->everyFiveMinutes()
+    ->everyMinute()
     ->runInBackground();
 
 Schedule::command('app:clear-expired-tokens')
