@@ -35,11 +35,24 @@ class CategoryService
         }
     }
 
-    public function getCategories()
+    /**
+     * @return JsonResponse
+     */
+    public function getCategories(): JsonResponse
     {
         try {
+            $categories = Category::with(['forums.latestPost.user'])->get();
 
-            $categories = Category::get();
+//            $categories->each(function ($category) {
+//                $category->forums->each(function ($forum) {
+//                    if ($forum->latestPost) {
+//                        $forum->setAttribute('latest_post_title', $forum->latestPost->title);
+//                        $forum->setAttribute('latest_post_created_at', $forum->latestPost->created_at);
+//                        $forum->setAttribute('latest_post_author', $forum->latestPost->user->username);
+//                        $forum->unsetRelation('latestPost');
+//                    }
+//                });
+//            });
 
             return ResponseHelpers::ConvertToJsonResponseWrapper(
                 CategoryResource::collection($categories),
@@ -62,7 +75,6 @@ class CategoryService
     public function getCategoryBySlug($slug): JsonResponse
     {
         try {
-
             $category = Category::with('forums')
                 ->where('slug', $slug)
                 ->firstOrFail();

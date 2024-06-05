@@ -24,7 +24,6 @@ class AdminSeeder extends Seeder
                 'is_active' => true,
                 'profile_url' => $profileUrl
             ]);
-            $this->command->info('Admin user created successfully!');
         } else {
             $this->command->info('Admin user already exists, skipping creation.');
         }
