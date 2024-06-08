@@ -16,6 +16,7 @@ use App\Utils\Traits\RecordFilterTrait;
 use Exception;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 
 class ForumService
@@ -115,19 +116,23 @@ class ForumService
      * @param $fetchPostsRequest
      * @return JsonResponse
      */
-    public function getForumPosts($slug, $fetchPostsRequest): JsonResponse
+    public function getForumPosts($slug, $queryParams): JsonResponse
     {
         try {
             $forum = Forum::where('slug', $slug)->firstOrFail();
 
+            $sortBy = Arr::get($queryParams, 'sort_by', 'latest'); // Default to 'latest' if not provided
+            $orderBy = $sortBy === 'oldest' ? 'asc' : 'desc';
+
             $postsQuery = $forum->posts()
                 ->withCount('postReplies')
-                ->orderByDesc('created_at');
+                ->orderBy('created_at',$orderBy);
 
-            $this->applyPostFilters($postsQuery, $fetchPostsRequest);
+            $this->applyPostFilters($postsQuery, $queryParams);
 
-            $pageSize = $fetchPostsRequest['page_size'] ?? 10;
-            $currentPage = $fetchPostsRequest['page_number'] ?? 1;
+            $pageSize = Arr::get($queryParams, 'page_size', 10);
+            $currentPage = Arr::get($queryParams, 'page_number', 1);
+
             $posts = $postsQuery->paginate($pageSize, ['*'], 'page', $currentPage);
             $posts->getCollection()->load('user');
 
