@@ -4,10 +4,10 @@ namespace App\Http\Controllers\DiscussifyCore;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\PostReplies\CreatePostReplyRequest;
-use App\Http\Requests\PostReplies\FetchPostRepliesRequest;
+use App\Http\Requests\PostReplies\FetchPostRepliesFormRequest;
 use App\Http\Requests\PostReplies\UpdatePostReplyRequest;
 use App\Http\Requests\Posts\CreatePostRequest;
-use App\Http\Requests\Posts\FetchPostsRequest;
+use App\Http\Requests\Posts\FetchPostsFormRequest;
 use App\Http\Requests\Posts\UpdatePostRequest;
 use App\Services\DiscussifyCore\PostReplyService;
 use App\Services\DiscussifyCore\PostService;
@@ -43,10 +43,10 @@ class PostReplyController extends Controller
 
     /**
      * @param $postSlug
-     * @param FetchPostRepliesRequest $postsRequest
+     * @param FetchPostRepliesFormRequest $postsRequest
      * @return JsonResponse
      */
-    public function getPostReplies($postSlug,FetchPostRepliesRequest $postsRequest): JsonResponse
+    public function getPostReplies($postSlug, FetchPostRepliesFormRequest $postsRequest): JsonResponse
     {
         return $this->_postReplyService->getPostReplies($postSlug,$postsRequest);
     }

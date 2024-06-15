@@ -4,7 +4,7 @@ namespace App\Http\Controllers\DiscussifyCore;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Posts\CreatePostRequest;
-use App\Http\Requests\Posts\FetchPostsRequest;
+use App\Http\Requests\Posts\FetchPostsFormRequest;
 use App\Http\Requests\Posts\UpdatePostRequest;
 use App\Services\DiscussifyCore\PostService;
 use Illuminate\Http\JsonResponse;
@@ -38,10 +38,10 @@ class PostController extends Controller
     }
 
     /**
-     * @param FetchPostsRequest $postsRequest
+     * @param FetchPostsFormRequest $postsRequest
      * @return JsonResponse
      */
-    public function getPosts(FetchPostsRequest $postsRequest): JsonResponse
+    public function getPosts(FetchPostsFormRequest $postsRequest): JsonResponse
     {
         return $this->_postService->getPosts($postsRequest);
     }

@@ -5,7 +5,7 @@ namespace App\Http\Controllers\DiscussifyCore;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Forum\CreateForumRequest;
 use App\Http\Requests\Forum\EditForumRequest;
-use App\Http\Requests\Posts\FetchPostsRequest;
+use App\Http\Requests\Posts\FetchPostsFormRequest;
 use App\Services\DiscussifyCore\ForumService;
 use Illuminate\Http\JsonResponse;
 
@@ -48,10 +48,10 @@ class ForumController extends Controller
 
     /**
      * @param $slug
-     * @param FetchPostsRequest $fetchPostsRequest
+     * @param FetchPostsFormRequest $fetchPostsRequest
      * @return JsonResponse
      */
-    public function getForumPosts($slug, FetchPostsRequest $fetchPostsRequest): JsonResponse
+    public function getForumPosts($slug, FetchPostsFormRequest $fetchPostsRequest): JsonResponse
     {
         return $this->_forumService->getForumPosts($slug,$fetchPostsRequest);
     }

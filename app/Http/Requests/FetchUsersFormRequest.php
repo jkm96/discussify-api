@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Contracts\Validation\ValidationRule;
 
-class FetchUsersRequest extends BaseRequest
+class FetchUsersFormRequest extends BaseFormRequest
 {
     /**
      * Determine if the user is authorized to make this request.

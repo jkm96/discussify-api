@@ -2,12 +2,13 @@
 
 namespace App\Http\Requests\Comments;
 
+use App\Http\Requests\BaseFormRequest;
 use App\Utils\Helpers\ResponseHelpers;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
-class UpdateCommentRequest extends FormRequest
+class UpdateCommentRequest extends BaseFormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -28,6 +29,7 @@ class UpdateCommentRequest extends FormRequest
     {
         return [
             'comment_id' => 'required',
+            'post_reply_id' => 'required',
             'description'=>'required|string '
         ];
     }

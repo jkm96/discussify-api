@@ -2,7 +2,7 @@
 
 namespace App\Services\DiscussifyCore;
 
-use App\Http\Requests\Posts\FetchPostsRequest;
+use App\Http\Requests\Posts\FetchPostsFormRequest;
 use App\Http\Resources\PostReplyResource;
 use App\Models\Post;
 use App\Models\PostReply;
@@ -109,7 +109,10 @@ class PostReplyService
             $pageSize = Arr::get($queryParams, 'page_size', 10);
             $currentPage = Arr::get($queryParams, 'page_number', 1);
 
-            $postReplies = $postRepliesQuery->with('user')->paginate($pageSize, ['*'], 'page', $currentPage);
+            $postReplies = $postRepliesQuery
+                ->with('user')
+                ->withCount('comments')
+                ->paginate($pageSize, ['*'], 'page', $currentPage);
 
             $this->checkIfUserHasFollowedRecordAuthor($postReplies);
 

@@ -12,6 +12,7 @@ use App\Utils\Helpers\ResponseHelpers;
 use Exception;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 
 class CommentService
@@ -24,7 +25,7 @@ class CommentService
     {
         try {
             $user = User::findOrFail(Auth::id());
-            $post = Post::findOrFail($commentRequest['post_reply_id']);
+            $post = PostReply::findOrFail($commentRequest['post_reply_id']);
 
             $comment = Comment::create([
                 'user_id' => $user->id,
@@ -58,6 +59,7 @@ class CommentService
     public function editComment($commentId, $updateRequest): JsonResponse
     {
         try {
+            PostReply::findOrFail($updateRequest['post_reply_id']);
             $comment = Comment::findOrFail($commentId);
 
             // Check if the authenticated user owns the post reply
@@ -69,12 +71,12 @@ class CommentService
                 );
             }
 
-            $comment->description = $updateRequest['description'];
+            $comment->description = trim($updateRequest['description']);
             $comment->save();
 
             return ResponseHelpers::ConvertToJsonResponseWrapper(
                 new CommentResource($comment),
-                'Post reply updated successfully',
+                'Comment edited successfully',
                 200
             );
         } catch (ModelNotFoundException $e) {
@@ -82,14 +84,14 @@ class CommentService
         } catch (Exception $e) {
             return ResponseHelpers::ConvertToJsonResponseWrapper(
                 ['error' => $e->getMessage()],
-                'Error creating post reply',
+                'Error editing comment',
                 500
             );
         }
     }
 
     /**
-     * @param $postSlug
+     * @param $postReplyId
      * @param $queryParams
      * @return JsonResponse
      */
@@ -97,9 +99,11 @@ class CommentService
     {
         try {
             $postReply = PostReply::findOrFail($postReplyId);
-//            $sortBy = $queryParams['sort_by'];//oldest first, newest first
+
+            $sortBy = Arr::get($queryParams, 'sort_by', 'latest'); // Default to 'latest' if not provided
+            $orderBy = $sortBy === 'oldest' ? 'asc' : 'desc';
             $commentsQuery = $postReply->comments()
-                ->orderBy('created_at', 'desc');;
+                ->orderBy('created_at', $orderBy);;
 
             $pageSize = $userQueryParams['page_size'] ?? 5;
             $currentPage = $userQueryParams['page_number'] ?? 1;

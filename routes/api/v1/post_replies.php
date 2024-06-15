@@ -15,5 +15,6 @@ Route::group(['prefix' => 'v1/post-replies', 'namespace' => 'api/v1', 'middlewar
         Route::post('create', [PostReplyController::class, 'createPostReply']);
         Route::put('{post_reply_id}/edit', [PostReplyController::class, 'updatePostReply']);
         Route::post('comments/create', [CommentController::class, 'createComment']);
+        Route::put('comments/{commentId}/edit', [CommentController::class, 'updateComment']);
     });
 });

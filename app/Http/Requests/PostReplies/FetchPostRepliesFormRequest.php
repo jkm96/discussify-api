@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Http\Requests\Posts;
+namespace App\Http\Requests\PostReplies;
 
-use App\Http\Requests\BaseRequest;
+use App\Http\Requests\BaseFormRequest;
 use Illuminate\Contracts\Validation\ValidationRule;
 
-class FetchPostsRequest extends BaseRequest
+class FetchPostRepliesFormRequest extends BaseFormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -23,9 +23,7 @@ class FetchPostsRequest extends BaseRequest
     public function rules(): array
     {
         return $this->commonRules() + [
-                'fetch' => 'nullable',
-                'period_from' => 'nullable',
-                'period_to' => 'nullable',
+                'sort_by' => 'nullable',
             ];
     }
 }

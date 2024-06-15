@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\FetchUsersRequest;
+use App\Http\Requests\FetchUsersFormRequest;
 use App\Services\Admin\ManageUserService;
 use Illuminate\Http\JsonResponse;
 
@@ -21,10 +21,10 @@ class ManageUserController extends Controller
     }
 
     /**
-     * @param FetchUsersRequest $usersRequest
+     * @param FetchUsersFormRequest $usersRequest
      * @return JsonResponse
      */
-    public function getUsers(FetchUsersRequest $usersRequest)
+    public function getUsers(FetchUsersFormRequest $usersRequest)
     {
         return $this->_manageUserService->getAllUsers($usersRequest);
     }

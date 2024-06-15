@@ -5,8 +5,8 @@ namespace App\Http\Controllers\DiscussifyCore;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Comments\CreateCommentRequest;
 use App\Http\Requests\Comments\UpdateCommentRequest;
-use App\Http\Requests\PostReplies\FetchPostRepliesRequest;
-use App\Http\Requests\Posts\FetchPostsRequest;
+use App\Http\Requests\PostReplies\FetchPostRepliesFormRequest;
+use App\Http\Requests\Posts\FetchPostsFormRequest;
 use App\Http\Requests\Posts\UpdatePostRequest;
 use App\Services\DiscussifyCore\CommentService;
 use App\Services\DiscussifyCore\PostService;
@@ -42,10 +42,10 @@ class CommentController extends Controller
 
     /**
      * @param $postReplyId
-     * @param FetchPostRepliesRequest $postsRequest
+     * @param FetchPostRepliesFormRequest $postsRequest
      * @return JsonResponse
      */
-    public function getComments($postReplyId,FetchPostRepliesRequest $postsRequest): JsonResponse
+    public function getComments($postReplyId, FetchPostRepliesFormRequest $postsRequest): JsonResponse
     {
         return $this->_commentService->getPostReplies($postReplyId,$postsRequest);
     }
