@@ -5,7 +5,6 @@ namespace App\Http\Requests\Comments;
 use App\Http\Requests\BaseFormRequest;
 use App\Utils\Helpers\ResponseHelpers;
 use Illuminate\Contracts\Validation\Validator;
-use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
 class UpdateCommentRequest extends BaseFormRequest

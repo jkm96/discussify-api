@@ -45,7 +45,7 @@ class PostReply extends Model
      */
     public function comments(): HasMany
     {
-        return $this->hasMany(Comment::class,'post_reply_id');
+        return $this->hasMany(Comment::class, 'post_reply_id')->whereNull('parent_comment_id');
     }
 
     public function likes(): MorphMany

@@ -4,10 +4,10 @@ namespace App\Http\Requests\Forum;
 
 use App\Utils\Helpers\ResponseHelpers;
 use Illuminate\Contracts\Validation\Validator;
-use Illuminate\Foundation\Http\FormRequest;
+use App\Http\Requests\BaseFormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
-class InitializeForumRequest extends FormRequest
+class InitializeForumRequest extends BaseFormRequest
 {
     /**
      * Determine if the user is authorized to make this request.

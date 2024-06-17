@@ -5,6 +5,7 @@ namespace App\Http\Controllers\DiscussifyCore;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Comments\CreateCommentRequest;
 use App\Http\Requests\Comments\UpdateCommentRequest;
+use App\Http\Requests\Comments\UpsertReplyRequest;
 use App\Http\Requests\PostReplies\FetchPostRepliesFormRequest;
 use App\Http\Requests\Posts\FetchPostsFormRequest;
 use App\Http\Requests\Posts\UpdatePostRequest;
@@ -41,12 +42,26 @@ class CommentController extends Controller
     }
 
     /**
+     * @param UpsertReplyRequest $upsertReplyRequest
+     * @return JsonResponse
+     */
+    public function upsertReply(UpsertReplyRequest $upsertReplyRequest): JsonResponse
+    {
+        return $this->_commentService->upsertReply($upsertReplyRequest);
+    }
+
+    /**
      * @param $postReplyId
      * @param FetchPostRepliesFormRequest $postsRequest
      * @return JsonResponse
      */
     public function getComments($postReplyId, FetchPostRepliesFormRequest $postsRequest): JsonResponse
     {
-        return $this->_commentService->getPostReplies($postReplyId,$postsRequest);
+        return $this->_commentService->getPostReplyComments($postReplyId,$postsRequest);
+    }
+
+    public function getNestedReplies($commentId, FetchPostRepliesFormRequest $repliesFormRequest): JsonResponse
+    {
+        return $this->_commentService->getNestedCommentReplies($commentId,$repliesFormRequest);
     }
 }

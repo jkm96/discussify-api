@@ -2,12 +2,12 @@
 
 namespace App\Http\Requests\Auth;
 
+use App\Http\Requests\BaseFormRequest;
 use App\Utils\Helpers\ResponseHelpers;
 use Illuminate\Contracts\Validation\Validator;
-use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
-class AdminLoginRequest extends FormRequest
+class AdminLoginRequest extends BaseFormRequest
 {
     /**
      * Determine if the user is authorized to make this request.

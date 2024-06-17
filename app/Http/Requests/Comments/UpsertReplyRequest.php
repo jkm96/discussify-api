@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Http\Requests\Forum;
+namespace App\Http\Requests\Comments;
 
+use App\Http\Requests\BaseFormRequest;
 use App\Utils\Helpers\ResponseHelpers;
 use Illuminate\Contracts\Validation\Validator;
-use App\Http\Requests\BaseFormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
-class CreateForumRequest extends BaseFormRequest
+class UpsertReplyRequest extends BaseFormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -27,8 +27,9 @@ class CreateForumRequest extends BaseFormRequest
     public function rules()
     {
         return [
-            'title' => 'required|string|min:5|unique:forums',
-            'category_id' => 'required',
+            'command' => 'required',
+            'parent_record_id' => 'required',
+            'record_id' => 'required',
             'description'=>'required|string '
         ];
     }
