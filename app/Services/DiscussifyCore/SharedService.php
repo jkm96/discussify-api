@@ -27,16 +27,17 @@ class SharedService
             $type = trim($toggleFollowLikeRequest['type']);
             $recordId = trim($toggleFollowLikeRequest['record_id']);
 
-            if (!Auth::guard('api')->user()) {
+            $user = Auth::guard('api')->user();
+            if (!$user) {
                 return ResponseHelpers::ConvertToJsonResponseWrapper(
-                    ['error' => "Not authorized to modify resource"],
+                    ['error' => 'Not authorized to modify resource'],
                     'Not authorized to modify resource',
                     401
                 );
             }
 
-            $user = Auth::guard('api')->user();
             switch ($type) {
+                case 'comment':
                 case 'post':
                     $existingLike = Like::where('user_id', $user->id)
                         ->where('likeable_type', "App\\Models\\" . ucfirst($type))

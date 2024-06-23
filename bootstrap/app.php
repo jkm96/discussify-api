@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\CheckIsAdminMiddleware;
 use App\Http\Middleware\ConvertRequestFieldsToSnakeCase;
 use App\Http\Middleware\ConvertResponseFieldsToCamelCase;
 use App\Utils\Helpers\ResponseHelpers;
