@@ -24,7 +24,8 @@ class Forum extends Model
         'avatar_url',
         'category_id',
         'views',
-        'post_count',
+        'threads',
+        'messages'
     ];
 
     /**

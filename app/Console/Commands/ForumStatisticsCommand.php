@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Models\Category;
 use App\Models\Forum;
 use App\Models\ForumStatistics;
 use App\Models\Post;
@@ -45,6 +46,8 @@ class ForumStatisticsCommand extends Command
             $this->calculatePostStats();
 
             $this->calculateForumStats();
+
+            $this->calculateCategoryStats();
 
             Log::info('Forum statistics updated successfully.');
         }
@@ -126,41 +129,12 @@ class ForumStatisticsCommand extends Command
                 Log::info("Post: {$post->title}, Participants: {$participants},Comments: {$commentsCount}, Replies: {$replyCount}");
             }
 
-            // Move to the next page
             $page++;
 
-            // Fetch the next page of posts
             $posts = $this->getPosts($perPage, $page);
         }
     }
 
-/**
-     * @return void
-     */
-    public function calculateForumStats(): void
-    {
-        $perPage = 10;
-        $page = 1;
-
-        $forums = $this->getForums($perPage, $page);
-
-        while ($page <= $forums->lastPage()) {
-            foreach ($forums as $forum) {
-                $postCount = $forum->posts()->count();
-
-                $forum->post_count = $postCount;
-                $forum->save();
-
-                Log::info("Forum: {$forum->title}, Posts: {$postCount}");
-            }
-
-            // Move to the next page
-            $page++;
-
-            // Fetch the next page of posts
-            $forums = $this->getPosts($perPage, $page);
-        }
-    }
 
     /**
      * @param int $perPage
@@ -174,6 +148,38 @@ class ForumStatisticsCommand extends Command
     }
 
     /**
+     * @return void
+     */
+    public function calculateForumStats(): void
+    {
+        $perPage = 10;
+        $page = 1;
+
+        $forums = $this->getForums($perPage, $page);
+
+        while ($page <= $forums->lastPage()) {
+            foreach ($forums as $forum) {
+                $threadCount = $forum->posts()->count();
+                $viewsCount = $forum->posts()->sum('views');
+                $messageCount = $forum->posts()->withCount('postReplies')->get()->sum('post_replies_count');
+                $participantCount = $forum->posts()->with('user')->get()->pluck('user_id')->unique()->count();
+
+                $forum->threads = $threadCount;
+                $forum->views = $viewsCount;
+                $forum->messages = $messageCount;
+                $forum->participants = $participantCount;
+                $forum->save();
+
+                Log::info("Forum: {$forum->title}, Posts: {$threadCount}");
+            }
+
+            $page++;
+
+            $forums = $this->getForums($perPage, $page);
+        }
+    }
+
+    /**
      * @param int $perPage
      * @param int $page
      * @return LengthAwarePaginator
@@ -181,6 +187,55 @@ class ForumStatisticsCommand extends Command
     public function getForums(int $perPage, int $page): LengthAwarePaginator
     {
         return Forum::with('posts')
+            ->paginate($perPage, ['*'], 'page', $page);
+    }
+
+    /**
+     * @return void
+     */
+    public function calculateCategoryStats(): void
+    {
+        $perPage = 10;
+        $page = 1;
+
+        $categories = $this->getCategories($perPage, $page);
+
+        while ($page <= $categories->lastPage()) {
+            foreach ($categories as $category) {
+                $threadsCount = $category->forums->sum(function ($forum) {
+                    return $forum->posts()->count();
+                });
+
+                $messagesCount = $category->forums->sum(function ($forum) {
+                    return $forum->posts()->withCount('postReplies')->get()->sum('post_replies_count');
+                });
+
+                $viewsCount = $category->forums->sum(function ($forum) {
+                    return $forum->posts()->sum('views');
+                });
+
+                $category->threads = $threadsCount;
+                $category->messages = $messagesCount;
+                $category->views = $viewsCount;
+                $category->save();
+
+                Log::info("Category: {$category->name}, Threads: {$threadsCount}, Messages: {$messagesCount}, Views: {$viewsCount}");
+            }
+
+            $page++;
+
+            $categories = $this->getCategories($perPage, $page);
+        }
+    }
+
+    /**
+     * @param int $perPage
+     * @param int $page
+     * @return LengthAwarePaginator
+     */
+    public function getCategories(int $perPage, int $page): LengthAwarePaginator
+    {
+        return Category::with('forums.posts')
             ->paginate($perPage, ['*'], 'page', $page);
     }
 }

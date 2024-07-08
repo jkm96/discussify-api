@@ -20,6 +20,9 @@ class Category extends Model
         'name',
         'description',
         'slug',
+        'threads',
+        'messages',
+        'views',
     ];
 
     /**
