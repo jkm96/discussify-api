@@ -19,9 +19,9 @@ class AdminSeeder extends Seeder
         if (Admin::count() === 0) {
             $profileUrl = AuthHelpers::createUserAvatarFromName("jkmdroid", true);
             Admin::create([
-                'username' => 'jkmdroid',
-                'email' => 'jkmdroid@discussify.io',
-                'password' => Hash::make('jkm@2pac'),
+                'username' => 'jkm96.dev',
+                'email' => 'jkm96.dev@discussify.io',
+                'password' => Hash::make('jkm@!2Pac'),
                 'is_active' => true,
                 'profile_url' => $profileUrl,
                 'is_email_verified' => 1,
